@@ -18,7 +18,7 @@ onmessage = (msg) => {
     ];
     var certfd = 3;
     var listenfd = 4;
-    var args = ['arg0', '--certfd='+certfd, '--net-listenfd='+listenfd, '--debug'];
+    var args = ['arg0', '--certfd='+certfd, '--net-listenfd='+listenfd];
     if (info.imageAddr != "") {
         args = args.concat(['--image-addr='+info.imageAddr]);
     }
@@ -241,8 +241,8 @@ function envHack(wasi){
             streamCtrl[0] = 0;
             postMessage({
                 type: "http_send",
-                address: address,
-                req: req,
+                address: address.slice(0, address.length),
+                req: req.slice(0, req.length),
             });
             Atomics.wait(streamCtrl, 0, 0);
             if (streamStatus[0] < 0) {
@@ -259,7 +259,7 @@ function envHack(wasi){
             postMessage({
                 type: "http_writebody",
                 id: id,
-                body: body,
+                body: body.slice(0, body.length),
                 isEOF: isEOF,
             });
             Atomics.wait(streamCtrl, 0, 0);
@@ -333,7 +333,7 @@ function envHack(wasi){
             streamCtrl[0] = 0;
             postMessage({
                 type: "layer_request",
-                address: address,
+                address: address.slice(0, address.length),
                 digest: digest,
                 isGzipN: isGzipN,
             });
@@ -602,9 +602,11 @@ function sockWaitForReadable(timeout){
     streamCtrl[0] = 0;
     Atomics.store(toNetNotify, 0, 0);
     postMessage({type: "recv-is-readable", timeout: timeout});
+    Atomics.wait(streamCtrl, 0, 0);
     Atomics.wait(toNetNotify, 0, 0);
     var res = Atomics.load(toNetNotify, 0);
 
+    streamCtrl[0] = 0;
     postMessage({type: "recv-is-readable-cancel"});
     Atomics.wait(streamCtrl, 0, 0);
 
