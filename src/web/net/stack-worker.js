@@ -18,7 +18,7 @@ onmessage = (msg) => {
     ];
     var certfd = 3;
     var listenfd = 4;
-    var args = ['arg0', '--certfd='+certfd, '--net-listenfd='+listenfd, '--debug'];
+    var args = ['arg0', '--certfd='+certfd, '--net-listenfd='+listenfd];
     if (info.imageAddr != "") {
         args = args.concat(['--image-addr='+info.imageAddr]);
     }
